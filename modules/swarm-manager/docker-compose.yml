@@ -1,0 +1,43 @@
+version: "3.9"
+services:
+  stress:
+    image: leonardolemos/http-stress
+    # image: gkoenig/simplehttp
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+        mode: global
+        placement:
+          constraints:
+              - "node.role==worker"
+        labels:
+            l30.space.service: "stress"
+        update_config:
+          parallelism: 1
+          delay: 10s
+        restart_policy:
+          condition: on-failure
+  monitor:
+    image: dockersamples/visualizer
+    ports:
+      - "3000:8080"
+    volumes:
+          - type: bind
+            source: /var/run/docker.sock
+            target: /var/run/docker.sock
+    deploy:
+        mode: global
+        placement:
+          constraints:
+            - "node.role==manager"
+        labels:
+            l30.space.service: "manager"
+        restart_policy:
+          condition: on-failure
+  

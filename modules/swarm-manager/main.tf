@@ -60,6 +60,31 @@ resource "aws_security_group" "allow_http" {
   }
 }
 
+
+resource "aws_security_group" "allow_swarm_manager" {
+  name        = "allow_swarm_manager"
+  description = "Allow Swarm Manager"
+  vpc_id = var.vpc_id
+
+  ingress {
+    from_port        = 3000
+    to_port          = 3000
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "allow_swarm_manager"
+  }
+}
+
 resource "aws_instance" "swarm_manager" {
   ami           = "ami-09e67e426f25ce0d7"
   associate_public_ip_address = "true"
@@ -68,11 +93,33 @@ resource "aws_instance" "swarm_manager" {
   subnet_id = var.subnet
   security_groups = [
     aws_security_group.allow_ssh.id,
-    aws_security_group.allow_http.id
+    aws_security_group.allow_http.id,
+    aws_security_group.allow_swarm_manager.id
   ]
-  user_data = file("${path.module}/user_data.sh")
 
   tags = {
     Name = "Manager"
+  }
+
+  provisioner "file" {
+    source      = "./modules/swarm-manager/docker-compose.yml"
+    destination = "/home/ubuntu/docker-compose.yml"
+
+    connection {
+      type     = "ssh"
+      user     = "ubuntu"
+      host     = self.public_ip
+      private_key = file(var.manager_private_key_file_location)
+    }
+  }
+
+  provisioner "remote-exec" {
+    script = "${path.module}/user_data.sh"
+    connection {
+      type     = "ssh"
+      user     = "ubuntu"
+      host     = self.public_ip
+      private_key = file(var.manager_private_key_file_location)
+    }
   }
 }
