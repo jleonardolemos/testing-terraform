@@ -85,6 +85,30 @@ resource "aws_security_group" "allow_swarm_manager" {
   }
 }
 
+resource "aws_security_group" "allow_swarm_advertise" {
+  name        = "allow_swarm_advertise"
+  description = "Allow Swarm Advertise"
+  vpc_id = var.vpc_id
+
+  ingress {
+    from_port        = 2377
+    to_port          = 2377
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "allow_swarm_advertise"
+  }
+}
+
 resource "aws_instance" "swarm_manager" {
   ami           = "ami-09e67e426f25ce0d7"
   associate_public_ip_address = "true"
@@ -94,7 +118,8 @@ resource "aws_instance" "swarm_manager" {
   security_groups = [
     aws_security_group.allow_ssh.id,
     aws_security_group.allow_http.id,
-    aws_security_group.allow_swarm_manager.id
+    aws_security_group.allow_swarm_manager.id,
+    aws_security_group.allow_swarm_advertise.id,
   ]
 
   tags = {
