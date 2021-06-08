@@ -115,7 +115,7 @@ resource "aws_instance" "swarm_manager" {
   instance_type = "t2.micro"
   key_name = "ecs-key"
   subnet_id = var.subnet
-  security_groups = [
+  vpc_security_group_ids = [
     aws_security_group.allow_ssh.id,
     aws_security_group.allow_http.id,
     aws_security_group.allow_swarm_manager.id,

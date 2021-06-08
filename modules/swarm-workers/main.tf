@@ -108,6 +108,13 @@ resource "aws_autoscaling_group" "swarm_worker_autoscaling" {
     id      = aws_launch_template.swarm_cluster_test.id
     version = "$Latest"
   }
+  
+  lifecycle {
+    ignore_changes = [
+      load_balancers,
+      target_group_arns,
+    ]
+  }
 }
 
 resource "aws_alb_target_group" "swarm_worker_target_group" {
