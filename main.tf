@@ -8,6 +8,10 @@ variable "manager_private_key_file_location" {
     description = "Location for the manager private key"
 }
 
+module "local_vault" {
+  source = "./modules/local-vault"
+}
+
 module "network" {
   source = "./modules/network"
 
