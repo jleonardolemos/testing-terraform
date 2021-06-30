@@ -1,17 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.0"
-    }
-  }
-}
-
-provider "aws" {
-  region                  = "us-east-1"
-  shared_credentials_file = var.aws_file_key_file_location
-}
-
 resource "aws_vpc" "swarm" {
   cidr_block = "192.168.0.0/16"
 
