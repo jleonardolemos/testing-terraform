@@ -30,6 +30,9 @@ provider "aws" {
 
 module "local_vault" {
   source = "./modules/local-vault"
+
+  aws_access_key = var.aws_access_key
+  aws_secret_key = var.aws_secret_key
 }
 
 module "network" {
